@@ -63,42 +63,78 @@ function generateDemoAnalysis(text: string): {
   sentiment: string;
   energy: string;
 } {
-  // Simple demo analysis based on text characteristics
   const words = text.toLowerCase().split(' ');
   const exclamationCount = (text.match(/!/g) || []).length;
   const questionCount = (text.match(/\?/g) || []).length;
+  const capsCount = (text.match(/[A-Z]/g) || []).length;
+  const textLength = text.length;
   
-  let tone = "friendly";
+  let tone = "neutral";
   let style = "conversational";
   let sentiment = "neutral";
   let energy = "medium";
   
-  // Basic analysis
-  if (exclamationCount > 0) {
-    tone = "enthusiastic";
-    energy = "high";
+  // Sentiment analysis
+  const positiveWords = ['excited', 'great', 'awesome', 'love', 'amazing', 'wonderful', 'fantastic', 'brilliant', 'excellent', 'happy', 'good', 'best', 'perfect', 'super'];
+  const negativeWords = ['sad', 'bad', 'terrible', 'awful', 'hate', 'disappointed', 'frustrated', 'angry', 'upset', 'horrible', 'worst'];
+  const formalWords = ['please', 'thank', 'sorry', 'excuse', 'kindly', 'appreciate', 'regarding', 'concerning'];
+  const casualWords = ['hey', 'yeah', 'cool', 'dude', 'awesome', 'lol', 'omg', 'btw'];
+  const enthusiasticWords = ['excited', 'amazing', 'fantastic', 'incredible', 'brilliant', 'outstanding'];
+  
+  const positiveCount = words.filter(word => positiveWords.includes(word)).length;
+  const negativeCount = words.filter(word => negativeWords.includes(word)).length;
+  const formalCount = words.filter(word => formalWords.includes(word)).length;
+  const casualCount = words.filter(word => casualWords.includes(word)).length;
+  const enthusiasticCount = words.filter(word => enthusiasticWords.includes(word)).length;
+  
+  // Determine sentiment
+  if (positiveCount > negativeCount) {
     sentiment = "positive";
+  } else if (negativeCount > positiveCount) {
+    sentiment = "negative";
   }
   
-  if (questionCount > 0) {
+  // Determine tone
+  if (enthusiasticCount > 0 || exclamationCount > 1) {
+    tone = "enthusiastic";
+  } else if (questionCount > 0) {
     tone = "curious";
-    style = "inquisitive";
-  }
-  
-  if (words.some(word => ['great', 'awesome', 'love', 'amazing', 'wonderful'].includes(word))) {
-    sentiment = "positive";
-    tone = "enthusiastic";
-  }
-  
-  if (words.some(word => ['please', 'thank', 'sorry', 'excuse'].includes(word))) {
+  } else if (formalCount > casualCount) {
     tone = "polite";
+  } else if (casualCount > 0) {
+    tone = "casual";
+  } else if (sentiment === "positive") {
+    tone = "friendly";
+  } else if (sentiment === "negative") {
+    tone = "concerned";
+  } else {
+    tone = "neutral";
+  }
+  
+  // Determine style
+  if (formalCount > 0) {
     style = "formal";
+  } else if (questionCount > 1) {
+    style = "inquisitive";
+  } else if (casualCount > 0) {
+    style = "casual";
+  } else if (textLength > 100) {
+    style = "detailed";
+  } else {
+    style = "conversational";
+  }
+  
+  // Determine energy
+  if (exclamationCount > 0 || capsCount > 3 || enthusiasticCount > 0) {
+    energy = "high";
+  } else if (negativeCount > 0 || words.includes('tired') || words.includes('exhausted')) {
+    energy = "low";
   }
   
   return {
     tone,
     style,
-    confidence: 0.7,
+    confidence: 0.75 + Math.random() * 0.2, // Random confidence between 0.75-0.95
     sentiment,
     energy
   };
@@ -157,42 +193,105 @@ export async function generateAITwinResponse(
 
 function generateDemoResponse(userText: string, voiceAnalysis: any): string {
   const { tone, style, sentiment, energy } = voiceAnalysis;
+  const words = userText.toLowerCase().split(' ');
   
-  // Generate a simple response based on the analysis
+  // Context-aware response generation based on input content
   const responses = {
     enthusiastic: [
       "That's exactly what I was thinking!",
       "I love how you put that!",
-      "Yes, absolutely! That makes perfect sense!"
+      "Yes, absolutely! That makes perfect sense!",
+      "I'm feeling the same energy about this!",
+      "That excitement is contagious!"
     ],
     curious: [
       "That's interesting... tell me more about that.",
       "I wonder if there's another way to look at this?",
-      "What do you think would happen if we tried a different approach?"
+      "What do you think would happen if we tried a different approach?",
+      "That raises some fascinating questions.",
+      "I'm curious about your thoughts on this too."
     ],
     polite: [
       "I appreciate you sharing that perspective.",
       "Thank you for bringing that up.",
-      "That's a thoughtful way to look at it."
+      "That's a thoughtful way to look at it.",
+      "I'm grateful for your insight.",
+      "That's very considerate of you to mention."
     ],
     friendly: [
       "I totally get what you mean!",
       "That sounds really good to me.",
-      "I'm with you on that one."
+      "I'm with you on that one.",
+      "That makes a lot of sense!",
+      "I feel the same way about that."
+    ],
+    casual: [
+      "Yeah, I totally get that!",
+      "That's pretty cool!",
+      "Sounds good to me!",
+      "I'm totally on board with that.",
+      "That's awesome!"
+    ],
+    concerned: [
+      "I understand how you feel about that.",
+      "That sounds challenging.",
+      "I can see why that would be difficult.",
+      "That's definitely something to think about.",
+      "I hear you on that one."
+    ],
+    neutral: [
+      "I understand what you're saying.",
+      "That's an interesting point.",
+      "I see where you're coming from.",
+      "That's worth considering.",
+      "I appreciate your perspective."
     ]
   };
   
-  const toneResponses = responses[tone] || responses.friendly;
-  const randomResponse = toneResponses[Math.floor(Math.random() * toneResponses.length)];
+  let selectedResponses = responses[tone as keyof typeof responses] || responses.friendly;
+  let response = selectedResponses[Math.floor(Math.random() * selectedResponses.length)];
   
-  // Add energy-based modifications
-  if (energy === "high") {
-    return randomResponse + " Let's dive deeper into this!";
-  } else if (energy === "low") {
-    return randomResponse.toLowerCase().replace(/!$/, ".");
+  // Content-aware modifications
+  if (words.includes('project') || words.includes('work')) {
+    if (sentiment === 'positive') {
+      response = "That project sounds really exciting! " + response;
+    } else {
+      response = "I understand the challenges with that project. " + response;
+    }
   }
   
-  return randomResponse;
+  if (words.includes('ai') || words.includes('artificial') || words.includes('intelligence')) {
+    const aiResponses = [
+      "AI is such a fascinating field! " + response,
+      "I find artificial intelligence really intriguing too. " + response,
+      "The possibilities with AI are endless! " + response
+    ];
+    response = aiResponses[Math.floor(Math.random() * aiResponses.length)];
+  }
+  
+  if (words.includes('day') || words.includes('today')) {
+    if (sentiment === 'positive') {
+      response = "Sounds like a great day! " + response;
+    } else if (sentiment === 'negative') {
+      response = "Sorry to hear about your day. " + response;
+    }
+  }
+  
+  // Energy-based modifications
+  if (energy === "high") {
+    response = response + " Let's keep this momentum going!";
+  } else if (energy === "low") {
+    response = response.toLowerCase().replace(/!+$/, ".").replace(/^./, response[0].toUpperCase());
+  }
+  
+  // Style modifications
+  if (style === "formal") {
+    response = response.replace(/totally|really|awesome|cool/g, "certainly");
+  } else if (style === "casual") {
+    response = response.replace(/certainly|indeed/g, "totally");
+  }
+  
+  return response;
 }
 
 export async function updateVoiceProfile(existingProfile: any, newAnalysis: any): Promise<any> {
