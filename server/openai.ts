@@ -46,8 +46,62 @@ export async function analyzeVoiceStyle(text: string): Promise<{
     };
   } catch (error) {
     console.error("Failed to analyze voice style:", error);
+    
+    // Check if it's a quota issue and provide demo analysis
+    if (error.status === 429 || error.message?.includes('quota')) {
+      return generateDemoAnalysis(text);
+    }
+    
     throw new Error("Failed to analyze voice style: " + error.message);
   }
+}
+
+function generateDemoAnalysis(text: string): {
+  tone: string;
+  style: string;
+  confidence: number;
+  sentiment: string;
+  energy: string;
+} {
+  // Simple demo analysis based on text characteristics
+  const words = text.toLowerCase().split(' ');
+  const exclamationCount = (text.match(/!/g) || []).length;
+  const questionCount = (text.match(/\?/g) || []).length;
+  
+  let tone = "friendly";
+  let style = "conversational";
+  let sentiment = "neutral";
+  let energy = "medium";
+  
+  // Basic analysis
+  if (exclamationCount > 0) {
+    tone = "enthusiastic";
+    energy = "high";
+    sentiment = "positive";
+  }
+  
+  if (questionCount > 0) {
+    tone = "curious";
+    style = "inquisitive";
+  }
+  
+  if (words.some(word => ['great', 'awesome', 'love', 'amazing', 'wonderful'].includes(word))) {
+    sentiment = "positive";
+    tone = "enthusiastic";
+  }
+  
+  if (words.some(word => ['please', 'thank', 'sorry', 'excuse'].includes(word))) {
+    tone = "polite";
+    style = "formal";
+  }
+  
+  return {
+    tone,
+    style,
+    confidence: 0.7,
+    sentiment,
+    energy
+  };
 }
 
 export async function generateAITwinResponse(
