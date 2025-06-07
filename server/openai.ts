@@ -1,0 +1,115 @@
+import OpenAI from "openai";
+
+// the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+const openai = new OpenAI({ 
+  apiKey: process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY_ENV_VAR || "default_key" 
+});
+
+export async function analyzeVoiceStyle(text: string): Promise<{
+  tone: string;
+  style: string;
+  confidence: number;
+  sentiment: string;
+  energy: string;
+}> {
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are a voice and communication style expert. Analyze the given text for communication patterns and respond with JSON in this exact format: 
+          {
+            "tone": "string (e.g., friendly, professional, casual, enthusiastic, etc.)",
+            "style": "string (e.g., conversational, formal, direct, diplomatic, etc.)",
+            "confidence": number (0-1, how confident you are in the analysis),
+            "sentiment": "string (positive, negative, neutral)",
+            "energy": "string (high, medium, low)"
+          }`
+        },
+        {
+          role: "user",
+          content: `Analyze this text: "${text}"`
+        }
+      ],
+      response_format: { type: "json_object" },
+    });
+
+    const result = JSON.parse(response.choices[0].message.content || "{}");
+    
+    return {
+      tone: result.tone || "neutral",
+      style: result.style || "conversational",
+      confidence: Math.max(0, Math.min(1, result.confidence || 0.5)),
+      sentiment: result.sentiment || "neutral",
+      energy: result.energy || "medium"
+    };
+  } catch (error) {
+    console.error("Failed to analyze voice style:", error);
+    throw new Error("Failed to analyze voice style: " + error.message);
+  }
+}
+
+export async function generateAITwinResponse(
+  userText: string, 
+  voiceAnalysis: any, 
+  conversationHistory: Array<{text: string, isUser: boolean}>
+): Promise<string> {
+  try {
+    const recentHistory = conversationHistory.slice(-6); // Last 3 exchanges
+    const historyContext = recentHistory.map(msg => 
+      `${msg.isUser ? 'User' : 'AI Twin'}: ${msg.text}`
+    ).join('\n');
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are an AI Twin that mimics the user's communication style. Based on the analysis, respond as if you are the user talking to themselves. 
+
+          User's communication style:
+          - Tone: ${voiceAnalysis.tone}
+          - Style: ${voiceAnalysis.style}
+          - Sentiment: ${voiceAnalysis.sentiment}
+          - Energy: ${voiceAnalysis.energy}
+
+          Match their tone, energy level, and speaking style. Use similar language patterns and enthusiasm level. Be conversational and respond as their digital twin would.
+
+          Recent conversation context:
+          ${historyContext}
+
+          Important: Keep responses concise (1-3 sentences) and natural. Mirror their communication style exactly.`
+        },
+        {
+          role: "user",
+          content: userText
+        }
+      ],
+    });
+
+    return response.choices[0].message.content || "I understand what you're saying!";
+  } catch (error) {
+    console.error("Failed to generate AI twin response:", error);
+    throw new Error("Failed to generate response: " + error.message);
+  }
+}
+
+export async function updateVoiceProfile(existingProfile: any, newAnalysis: any): Promise<any> {
+  if (!existingProfile) {
+    return {
+      averageTone: newAnalysis.tone,
+      commonPhrases: [],
+      speakingStyle: newAnalysis.style,
+      confidenceLevel: newAnalysis.confidence
+    };
+  }
+
+  // Simple profile updating logic - in a real app this would be more sophisticated
+  return {
+    ...existingProfile,
+    averageTone: newAnalysis.tone, // Could average with existing
+    speakingStyle: newAnalysis.style,
+    confidenceLevel: (existingProfile.confidenceLevel + newAnalysis.confidence) / 2
+  };
+}
