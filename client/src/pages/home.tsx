@@ -73,6 +73,19 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50">
       <AppHeader />
       
+      {/* Demo Mode Banner */}
+      <div className="bg-yellow-50 border-b border-yellow-200 px-4 py-3">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex items-center space-x-3">
+            <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
+            <p className="text-sm text-yellow-800">
+              <strong>Demo Mode:</strong> Your OpenAI quota has been exceeded. The app is running with simulated AI responses. 
+              To get full AI analysis, please add credits to your OpenAI account or provide a new API key.
+            </p>
+          </div>
+        </div>
+      </div>
+      
       <div className="max-w-4xl mx-auto px-4 py-6">
         <ConversationArea 
           conversation={currentConversation}

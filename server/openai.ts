@@ -145,8 +145,54 @@ export async function generateAITwinResponse(
     return response.choices[0].message.content || "I understand what you're saying!";
   } catch (error) {
     console.error("Failed to generate AI twin response:", error);
+    
+    // Check if it's a quota issue and provide demo response
+    if (error.status === 429 || error.message?.includes('quota')) {
+      return generateDemoResponse(userText, voiceAnalysis);
+    }
+    
     throw new Error("Failed to generate response: " + error.message);
   }
+}
+
+function generateDemoResponse(userText: string, voiceAnalysis: any): string {
+  const { tone, style, sentiment, energy } = voiceAnalysis;
+  
+  // Generate a simple response based on the analysis
+  const responses = {
+    enthusiastic: [
+      "That's exactly what I was thinking!",
+      "I love how you put that!",
+      "Yes, absolutely! That makes perfect sense!"
+    ],
+    curious: [
+      "That's interesting... tell me more about that.",
+      "I wonder if there's another way to look at this?",
+      "What do you think would happen if we tried a different approach?"
+    ],
+    polite: [
+      "I appreciate you sharing that perspective.",
+      "Thank you for bringing that up.",
+      "That's a thoughtful way to look at it."
+    ],
+    friendly: [
+      "I totally get what you mean!",
+      "That sounds really good to me.",
+      "I'm with you on that one."
+    ]
+  };
+  
+  const toneResponses = responses[tone] || responses.friendly;
+  const randomResponse = toneResponses[Math.floor(Math.random() * toneResponses.length)];
+  
+  // Add energy-based modifications
+  if (energy === "high") {
+    return randomResponse + " Let's dive deeper into this!";
+  } else if (energy === "low") {
+    return randomResponse.toLowerCase().replace(/!$/, ".");
+  }
+  
+  return randomResponse;
 }
 
 export async function updateVoiceProfile(existingProfile: any, newAnalysis: any): Promise<any> {
