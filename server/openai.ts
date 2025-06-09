@@ -74,18 +74,22 @@ function generateDemoAnalysis(text: string): {
   let sentiment = "neutral";
   let energy = "medium";
   
-  // Sentiment analysis
-  const positiveWords = ['excited', 'great', 'awesome', 'love', 'amazing', 'wonderful', 'fantastic', 'brilliant', 'excellent', 'happy', 'good', 'best', 'perfect', 'super'];
-  const negativeWords = ['sad', 'bad', 'terrible', 'awful', 'hate', 'disappointed', 'frustrated', 'angry', 'upset', 'horrible', 'worst'];
-  const formalWords = ['please', 'thank', 'sorry', 'excuse', 'kindly', 'appreciate', 'regarding', 'concerning'];
-  const casualWords = ['hey', 'yeah', 'cool', 'dude', 'awesome', 'lol', 'omg', 'btw'];
-  const enthusiasticWords = ['excited', 'amazing', 'fantastic', 'incredible', 'brilliant', 'outstanding'];
+  // Enhanced word analysis
+  const positiveWords = ['excited', 'great', 'awesome', 'love', 'amazing', 'wonderful', 'fantastic', 'brilliant', 'excellent', 'happy', 'good', 'best', 'perfect', 'super', 'thrilled', 'delighted', 'ecstatic', 'joyful', 'pleased', 'satisfied', 'optimistic', 'confident', 'proud', 'grateful', 'blessed'];
+  const negativeWords = ['sad', 'bad', 'terrible', 'awful', 'hate', 'disappointed', 'frustrated', 'angry', 'upset', 'horrible', 'worst', 'depressed', 'miserable', 'devastated', 'furious', 'annoyed', 'stressed', 'worried', 'anxious', 'concerned', 'troubled', 'discouraged'];
+  const formalWords = ['please', 'thank', 'sorry', 'excuse', 'kindly', 'appreciate', 'regarding', 'concerning', 'furthermore', 'however', 'therefore', 'nevertheless', 'consequently', 'accordingly', 'respectfully', 'sincerely'];
+  const casualWords = ['hey', 'yeah', 'cool', 'dude', 'awesome', 'lol', 'omg', 'btw', 'sup', 'nah', 'yep', 'gonna', 'wanna', 'kinda', 'sorta', 'totally', 'really', 'pretty', 'super', 'way'];
+  const enthusiasticWords = ['excited', 'amazing', 'fantastic', 'incredible', 'brilliant', 'outstanding', 'phenomenal', 'spectacular', 'extraordinary', 'magnificent', 'marvelous', 'sensational', 'thrilling', 'exhilarating'];
+  const questionWords = ['what', 'how', 'why', 'when', 'where', 'who', 'which', 'could', 'would', 'should', 'can', 'will', 'do', 'does', 'did', 'is', 'are', 'was', 'were'];
+  const uncertainWords = ['maybe', 'perhaps', 'possibly', 'might', 'could', 'uncertain', 'unsure', 'confused', 'wondering', 'guess', 'think', 'suppose', 'assume'];
   
   const positiveCount = words.filter(word => positiveWords.includes(word)).length;
   const negativeCount = words.filter(word => negativeWords.includes(word)).length;
   const formalCount = words.filter(word => formalWords.includes(word)).length;
   const casualCount = words.filter(word => casualWords.includes(word)).length;
   const enthusiasticCount = words.filter(word => enthusiasticWords.includes(word)).length;
+  const questionWordCount = words.filter(word => questionWords.includes(word)).length;
+  const uncertainCount = words.filter(word => uncertainWords.includes(word)).length;
   
   // Determine sentiment
   if (positiveCount > negativeCount) {
@@ -94,12 +98,14 @@ function generateDemoAnalysis(text: string): {
     sentiment = "negative";
   }
   
-  // Determine tone
+  // Determine tone with improved logic
   if (enthusiasticCount > 0 || exclamationCount > 1) {
     tone = "enthusiastic";
-  } else if (questionCount > 0) {
+  } else if (uncertainCount > 0) {
+    tone = "thoughtful";
+  } else if (questionCount > 0 || questionWordCount > 2) {
     tone = "curious";
-  } else if (formalCount > casualCount) {
+  } else if (formalCount > casualCount && formalCount > 0) {
     tone = "polite";
   } else if (casualCount > 0) {
     tone = "casual";
@@ -111,15 +117,19 @@ function generateDemoAnalysis(text: string): {
     tone = "neutral";
   }
   
-  // Determine style
-  if (formalCount > 0) {
+  // Determine style with improved logic
+  if (formalCount > 0 && formalCount > casualCount) {
     style = "formal";
-  } else if (questionCount > 1) {
+  } else if (questionCount > 1 || questionWordCount > 3) {
     style = "inquisitive";
   } else if (casualCount > 0) {
     style = "casual";
+  } else if (uncertainCount > 1) {
+    style = "reflective";
   } else if (textLength > 100) {
     style = "detailed";
+  } else if (textLength < 20) {
+    style = "brief";
   } else {
     style = "conversational";
   }
@@ -239,6 +249,13 @@ function generateDemoResponse(userText: string, voiceAnalysis: any): string {
       "That's definitely something to think about.",
       "I hear you on that one."
     ],
+    thoughtful: [
+      "That's something I've been pondering too.",
+      "I find myself thinking along similar lines.",
+      "That's a really thoughtful way to put it.",
+      "I'm reflecting on that same idea.",
+      "That gives me a lot to consider."
+    ],
     neutral: [
       "I understand what you're saying.",
       "That's an interesting point.",
@@ -251,8 +268,8 @@ function generateDemoResponse(userText: string, voiceAnalysis: any): string {
   let selectedResponses = responses[tone as keyof typeof responses] || responses.friendly;
   let response = selectedResponses[Math.floor(Math.random() * selectedResponses.length)];
   
-  // Content-aware modifications
-  if (words.includes('project') || words.includes('work')) {
+  // Enhanced content-aware modifications
+  if (words.includes('project') || words.includes('work') || words.includes('job')) {
     if (sentiment === 'positive') {
       response = "That project sounds really exciting! " + response;
     } else {
@@ -260,21 +277,39 @@ function generateDemoResponse(userText: string, voiceAnalysis: any): string {
     }
   }
   
-  if (words.includes('ai') || words.includes('artificial') || words.includes('intelligence')) {
+  if (words.includes('ai') || words.includes('artificial') || words.includes('intelligence') || words.includes('machine') || words.includes('learning')) {
     const aiResponses = [
       "AI is such a fascinating field! " + response,
       "I find artificial intelligence really intriguing too. " + response,
-      "The possibilities with AI are endless! " + response
+      "The possibilities with AI are endless! " + response,
+      "Machine learning continues to amaze me. " + response
     ];
     response = aiResponses[Math.floor(Math.random() * aiResponses.length)];
   }
   
-  if (words.includes('day') || words.includes('today')) {
+  if (words.includes('day') || words.includes('today') || words.includes('morning') || words.includes('evening')) {
     if (sentiment === 'positive') {
       response = "Sounds like a great day! " + response;
     } else if (sentiment === 'negative') {
       response = "Sorry to hear about your day. " + response;
     }
+  }
+  
+  if (words.includes('food') || words.includes('eat') || words.includes('hungry') || words.includes('restaurant')) {
+    const foodResponses = [
+      "I love talking about food! " + response,
+      "That sounds delicious! " + response,
+      "Food always makes for great conversation. " + response
+    ];
+    response = foodResponses[Math.floor(Math.random() * foodResponses.length)];
+  }
+  
+  if (words.includes('music') || words.includes('song') || words.includes('listen') || words.includes('band')) {
+    response = "Music really connects with me too. " + response;
+  }
+  
+  if (words.includes('travel') || words.includes('trip') || words.includes('vacation') || words.includes('visit')) {
+    response = "Travel experiences are so enriching! " + response;
   }
   
   // Energy-based modifications
