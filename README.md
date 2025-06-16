@@ -16,7 +16,7 @@ An intelligent web application that records your voice, analyzes your communicat
 - **🔄 Demo Mode**: Intelligent fallback when OpenAI quota is exceeded
 - **🎨 Modern UI**: Beautiful, responsive interface with dark mode support
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -50,7 +50,7 @@ npm run dev
 5. **Open your browser**
 Navigate to `http://localhost:5000`
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 ### Frontend
 - **React 18** - Modern UI framework
@@ -94,13 +94,13 @@ ai-twin/
 └── components.json        # Shadcn/UI configuration
 ```
 
-## 🔧 Configuration
+## Configuration
 
 ### Environment Variables
 
 | Variable | Description | Required |
 |----------|-------------|----------|
-| `OPENAI_API_KEY` | Your OpenAI API key for AI analysis | No (demo mode available) |
+| `OPENAI_API_KEY` | Your OpenAI API key for AI analysis | No |
 | `NODE_ENV` | Environment (development/production) | No |
 
 ### OpenAI Setup
@@ -111,7 +111,7 @@ ai-twin/
 4. Create a new secret key
 5. Add the key to your `.env` file
 
-## 🎯 Usage
+## Usage
 
 ### Voice Mode
 1. Click the **Voice** tab
@@ -131,7 +131,7 @@ ai-twin/
 - View tone distribution, style preferences, and confidence levels
 - Export conversation history for analysis
 
-## 🤖 AI Analysis Features
+## AI Analysis Features
 
 ### Communication Style Detection
 - **Tone**: Enthusiastic, curious, polite, casual, concerned, thoughtful, neutral
@@ -147,14 +147,14 @@ When OpenAI quota is exceeded, the app automatically switches to demo mode with:
 - Topic-specific responses (AI, work, food, music, travel)
 - Dynamic tone and style adaptation
 
-## 🔒 Privacy & Security
+## Privacy & Security
 
 - **Local Processing**: Voice analysis happens in your browser
 - **No Data Storage**: Conversations stored only in memory during session
 - **Secure API**: OpenAI API calls are server-side only
 - **Privacy First**: No personal data transmitted or stored permanently
 
-## 🚀 Deployment
+## Deployment
 
 ### Using Replit (Recommended)
 1. Import project to Replit
@@ -167,7 +167,7 @@ When OpenAI quota is exceeded, the app automatically switches to demo mode with:
 2. Deploy to your preferred platform (Vercel, Netlify, Railway)
 3. Set environment variables in your deployment platform
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! Here's how to get started:
 
@@ -233,7 +233,7 @@ Get voice analysis statistics
 }
 ```
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -262,4 +262,7 @@ Get voice analysis statistics
 
 **Built with ❤️ using modern web technologies**
 
-*Star this repository if you find it useful!*
+## Author
+
+Miloni Patel 
+@milonip
