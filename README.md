@@ -251,23 +251,12 @@ Get voice analysis statistics
 - Ensure Node.js version 20 or higher
 - Clear node_modules and reinstall: `rm -rf node_modules && npm install`
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - [OpenAI](https://openai.com/) for powerful AI capabilities
 - [Shadcn/UI](https://ui.shadcn.com/) for beautiful components
 - [Replit](https://replit.com/) for excellent development platform
 - [Tailwind CSS](https://tailwindcss.com/) for styling framework
-
-## 🔗 Links
-
-- [Live Demo](https://your-app-name.replit.app)
-- [Documentation](https://github.com/yourusername/ai-twin/wiki)
-- [Issue Tracker](https://github.com/yourusername/ai-twin/issues)
-- [Discussions](https://github.com/yourusername/ai-twin/discussions)
 
 ---
 
