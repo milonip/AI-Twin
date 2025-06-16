@@ -16,6 +16,11 @@ An intelligent web application that records your voice, analyzes your communicat
 - **🔄 Demo Mode**: Intelligent fallback when OpenAI quota is exceeded
 - **🎨 Modern UI**: Beautiful, responsive interface with dark mode support
 
+## Visuals
+
+<img width="1406" alt="Screenshot 2025-06-07 at 7 42 29 PM" src="https://github.com/user-attachments/assets/997af087-c1bd-43f3-9799-6b0b684dd7ba" />
+<img width="1311" alt="Screenshot 2025-06-07 at 12 58 13 PM" src="https://github.com/user-attachments/assets/e008d62d-48ec-462f-8670-5e6697aeb5be" />
+
 ## Quick Start
 
 ### Prerequisites
