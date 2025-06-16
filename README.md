@@ -2,8 +2,6 @@
 
 An intelligent web application that records your voice, analyzes your communication style, and creates an AI Twin that mimics your tone, personality, and speaking patterns.
 
-![AI Twin Demo](https://img.shields.io/badge/Demo-Live-brightgreen)
-![License](https://img.shields.io/badge/license-MIT-blue)
 ![Node.js](https://img.shields.io/badge/Node.js-20+-green)
 ![React](https://img.shields.io/badge/React-18+-blue)
 
